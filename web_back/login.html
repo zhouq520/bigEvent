@@ -43,7 +43,7 @@
                     <h4 class="modal-title" id="myModalLabel">温馨提示!</h4>
                 </div>
                 <div class="modal-body">
-                   
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -58,7 +58,43 @@
     <script src="./js/jquery-1.12.4.min.js"></script>
     <!-- 引入bootstrap的js文件 -->
     <script src="./js/bootstrap/js/bootstrap.min.js"></script>
-   
+    <script>
+        // http://localhost:8000/admin/login
+        $(function () {
+            $('.input_sub').on('click', function (e) {
+                e.preventDefault();
+                var user_name = $('.input_txt').val().trim();
+                var prossword = $('.input_pass').val().trim();
+                if (user_name == '' || prossword == '') {
+                    $('.modal-body').text('账号密码格式错误')
+                    $('#myModal').modal({
+                        keyboard: false
+                    })
+                    return;
+                }
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8000/admin/login',
+                    data: {
+                        user_name: user_name,
+                        password: prossword
+                    },
+                    success: function (blackDatd) {
+                        console.log(blackDatd);
+                        if (blackDatd.code == 200) {
+                         
+                            window.location.href = 'index.html'
+                        }else{
+                            $('.modal-body').text('账号密码错误')
+                            $('#myModal').modal({
+                                keyboard: false
+                            })
+                        }
+                    }
+                })
+            })
+        })
+    </script>
 
 </body>
 
