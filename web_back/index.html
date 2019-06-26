@@ -49,8 +49,8 @@
         </form>
         <div class="user_center_link">
             <a href="user.html" onclick="setMenu(3,0)" target="main_frame">个人中心</a>
-            <img src="images/2.jpg" alt="person">
-            <a href="#" id="btn-logout" ><i class="iconfont icon-tuichu"></i> 退出</a>
+            <img src="images/2.jpg" alt="person" class='phone'>
+            <a href="#" id="btn-logout"><i class="iconfont icon-tuichu"></i> 退出</a>
         </div>
     </div>
 
@@ -108,7 +108,35 @@
         }
 
     </script>
+    <script>
+        $(function () {
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8000/admin/getuser',
+                success: function (data) {
+                    if (data.code == 200) {
+                        $('.user_info span').html('欢迎&nbsp;&nbsp;' + data.data.nickname)
+                        $('.user_info img').attr('src',data.data.user_pic);
+                        $('.phone').attr('src', data.data.user_pic);
+                    }
+                }
+            })
 
+        $('#btn-logout').on('click', function () {
+            console.log('aa');
+            $.ajax({
+                type: 'post',
+                url: 'http://localhost:8000/admin/logout',
+                success: function (data) {
+                    console.log(data);
+                    if (data.code == 200) {
+                        window.location.href = 'login.html'
+                    }
+                }
+            })
+        })
+        })
+    </script>
 
 </body>
 
