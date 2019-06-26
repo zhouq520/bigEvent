@@ -133,40 +133,33 @@
 
     <!-- 引入模板引擎js文件 -->
     <script src="./js/template-web.js"></script>
-    <!-- 写一个模板 -->
-    <script id="tmp_cate" type="text/html">
-        {{each data v}}
-        <tr>
+    <script id="web_list" type="text/html">
+      {{each data v}}
+      <tr>
             <td>{{v.name}}</td>
             <td>{{v.slug}}</td>
             <td class="text-center">
-                <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});" class="btn btn-info btn-xs">编辑</a>
+                <a href="javascript:editTr({&quot;id&quot;:&quot;4&quot;,&quot;slug&quot;:&quot;travel&quot;,&quot;name&quot;:&quot;爱旅行&quot;});"
+                    class="btn btn-info btn-xs">编辑</a>
                 <a href="javascript:deleteTr( {{v.id}} );" class="btn btn-danger btn-xs">删除</a>
             </td>
         </tr>
-        {{/each}}
+      {{/each }}
     </script>
-    <script>
-        $(function () {
-            /*
-            1.一进到文章分类页面,发送ajax请求, 获取所有的文章分类信息.
-            2.把这些文章分类信息, 通过模板引擎渲染到页面上.
-            */
-            $.ajax({
-                url: 'http://localhost:8000/admin/category_search',
-                success: function (backData) {
-                    console.log(backData);
-                    if (backData.code == 200) {
-                        //把这些文章分类信息, 通过模板引擎渲染到页面上.
-                        //调用模板引擎核心方法.
-                        var resHtml = template('tmp_cate',backData);
-                        //渲染到tbody
-                        $('tbody').html(resHtml);
-                    }
-                }
-            });
 
-        });
+    <script>
+        $(function(){
+            $.ajax({
+                type : 'get',
+                url:'http://localhost:8000/admin/category_search',
+                success:function(blackDate){
+                  if(blackDate.code == 200){
+                    var html = template('web_list',blackDate)
+                    $('tbody').html(html);
+                  }
+                }
+            })
+        })
     </script>
 
 </body>
