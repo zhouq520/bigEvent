@@ -72,7 +72,8 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal">新增分类</a>
+                            <a href="#" class="btn btn-success type" data-toggle="modal"
+                                data-target="#addModal">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
@@ -89,13 +90,14 @@
                 </div>
                 <div class="modal-body">
                     <form>
+                        <input type="hidden" value="id" name="id" class="cate_id">
                         <div class="form-group">
                             <label for="recipient-name" class="control-label">分类名称:</label>
-                            <input type="text" class="form-control" id="recipient-name">
+                            <input type="text" name="name" class="form-control" id="recipient-name">
                         </div>
                         <div class="form-group">
                             <label for="message-text" class="control-label">分类别名:</label>
-                            <input type="text" class="form-control" id="recipient-name">
+                            <input type="text" name="slug" class="form-control" id="recipient-name1">
                         </div>
                     </form>
                 </div>
@@ -114,21 +116,13 @@
         });
 
         $('#model_shutoff').click(function () {
-            alert('shutoff');
+            // alert('shutoff');
             $('#addModal').modal('hide');
         });
 
-        $('#model_add').click(function () {
-            alert('add');
-            $('#addModal').modal('hide');
-        });
 
-        $('.category_table').delegate('a', 'click', function () {
-            if ($(this).hasClass('btn-info')) {
-                $('#addModal .modal-title').html('修改分类名称');
-                $('#addModal').modal('show');
-            }
-        })      
+
+
     </script>
 
     <!-- 引入模板引擎js文件 -->
@@ -139,25 +133,105 @@
             <td>{{v.name}}</td>
             <td>{{v.slug}}</td>
             <td class="text-center">
-                <a href="javascript:editTr({&quot;id&quot;:&quot;4&quot;,&quot;slug&quot;:&quot;travel&quot;,&quot;name&quot;:&quot;爱旅行&quot;});"
-                    class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:deleteTr( {{v.id}} );" class="btn btn-danger btn-xs">删除</a>
+                <a href="#" cate_id ='{{v.id}}' class="btn btn-info btn-xs btn_bj">编辑</a>
+                <a href="#"  cate_id ='{{v.id}}' class="btn btn-danger btn-xs btn_sc">删除</a>
             </td>
         </tr>
       {{/each }}
     </script>
 
     <script>
-        $(function(){
-            $.ajax({
-                type : 'get',
-                url:'http://localhost:8000/admin/category_search',
-                success:function(blackDate){
-                  if(blackDate.code == 200){
-                    var html = template('web_list',blackDate)
-                    $('tbody').html(html);
-                  }
+        $(function () {
+            function addit() {
+                $.ajax({
+                    type: 'get',
+                    url: 'http://localhost:8000/admin/category_search',
+                    success: function (blackDate) {
+                        if (blackDate.code == 200) {
+                            var html = template('web_list', blackDate)
+                            console.log(blackDate);
+                            $('tbody').html(html);
+                        }
+                    }
+                })
+            }
+            addit();
+            //新增
+            $('#model_add').on('click', function (e) {
+                e.preventDefault()
+                if ($(this).hasClass('btn-success')) {
+                    // 保存
+                    var form1 = $('form').serialize()
+                    console.log(form1);
+                    $.ajax({
+                        type: 'post',
+                        url: 'http://localhost:8000/admin/category_edit',
+                        data: form1,
+                        success: function (blackDate) {
+                            console.log(blackDate);
+                            if(blackDate.code == 200){
+                                addit();
+                            }
+                        }
+                    })
+                    $('#addModal').modal('hide');
+                } else {
+                    //新增
+                    var cateName = $('#recipient-name').val();
+                    var cateSulg = $('#recipient-name1').val();
+                    $.ajax({
+                        type: 'post',
+                        url: 'http://localhost:8000/admin/category_add',
+                        data: {
+                            name: cateName,
+                            slug: cateSulg
+                        },
+                        success: function (blacDate) {
+                            console.log(blacDate);
+                            if (blacDate.code == 200) {
+                                addit();
+                            }
+                            $('#addModal').modal('hide');
+                        }
+                    })
                 }
+
+            })
+            // 新增分类默认文字修改
+            $('.type').on('click', function () {
+                $('.modal-title').text('新增分类');
+                $('.model_add').text('新增');
+            });
+            //删除按钮
+            $('tbody').on('click', '.btn_sc', function () {
+                var id = $(this).attr('cate_id');
+                var that = $(this)
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8000/admin/category_delete',
+                    data: {
+                        id: id
+                    },
+                    success: function (blackDate) {
+                        if (blackDate.code = 200) {
+                            that.parent().parent().remove();
+                        }
+                    }
+                })
+            })
+            // 编辑
+            $('.category_table').on('click', '.btn_bj', function () {
+                $('#addModal .modal-title').html('修改分类');
+                $('#model_add').text('保存').addClass('btn-success');
+                $('#addModal').modal('show');
+                var id = $(this).attr('cate_id');
+                $('.cate_id').val(id)
+                var name = $(this).parent().prev().prev().text()
+                var sluf = $(this).parent().prev().text()
+                // 赋值
+                $('#recipient-name').val(name);
+                $('#recipient-name1').val(sluf);
+                $('form .id').val(id);
             })
         })
     </script>
