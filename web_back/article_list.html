@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
     <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="./js/jquery.twbsPagination.js"></script>
 </head>
 
 <body>
@@ -267,17 +268,18 @@
 
         </div>
     </div>
-      <!-- 引入模板引擎js文件 -->
-      <script src="./js/template-web.js"></script>
-      <!-- 写一个模板 -->
-      <script id="tmp_cate" type="text/html">
+
+    <!-- 引入模板引擎js文件 -->
+    <script src="./js/template-web.js"></script>
+    <!-- 写一个模板 -->
+    <script id="tmp_cate" type="text/html">
          <option value="">所有分类</option>
          {{each data}}
          <option value="{{$value.id}}">{{$value.name}}</option>
          {{/each}} 
       </script>
-      <!-- 模板 -->
-      <script id='tmp_list' type="text/html">
+    <!-- 模板 -->
+    <script id='tmp_list' type="text/html">
           {{each data v}}
           <tr>
           <td>{{v.title}}</td>
@@ -292,53 +294,86 @@
           </tr>
           {{/each}}
       </script>
-      <script>
-          // 设置左侧菜单
-          $('#release_btn').click(function () {
-              window.parent.setMenu(1, 1);
-          })
-  
-          //一进到页面显示文章类别.
-          $.ajax({
-              url: 'http://localhost:8000/admin/category_search',
-              success: function (backData) {
-                  // console.log(backData);
-                  if (backData.code == 200) {
-                      //使用模板渲染
-                      var resHtml = template('tmp_cate', backData);
-                      $('#selCategory').html(resHtml);
-                  }
-              }
-          });
-  
-  
-          //点击筛选按钮搜索文章
-          $('#btnSearch').on('click',function(e){
-              e.preventDefault();
-              //获取文章类别id和状态.
-              var cateId = $('#selCategory').val();
-              var state = $('#selStatus').val();
-              //console.log(cateId,state);
-              //发送ajax请求
-              $.ajax({
-                  url:'http://localhost:8000/admin/search',
-                  data:{
-                     type: cateId,
-                     state:state,
-                     page:1,
-                     perpage:5
-                  },
-                  success:function(backData){
-                      console.log(backData);
-                      if(backData.code == 200){
-                          var resHtml = template('tmp_list',backData);
-                          $('tbody').html(resHtml);;
-                      }
-                  }
-              });
-          });
-  
-      </script>
+    <script>
+        // 设置左侧菜单
+        $('#release_btn').click(function () {
+            window.parent.setMenu(1, 1);
+        })
+        $.ajax({
+            url: 'http://localhost:8000/admin/category_search',
+            success: function (backData) {
+                // console.log(backData);
+                if (backData.code == 200) {
+                    //使用模板渲染
+                    var resHtml = template('tmp_cate', backData);
+                    $('#selCategory').html(resHtml);
+
+                }
+            }
+        });
+        //一进到页面显示文章类别.
+        function cate(page) {
+            //获取文章类别id和状态.
+            var cateId = $('#selCategory').val();
+            var state = $('#selStatus').val();
+            $.ajax({
+                url: 'http://localhost:8000/admin/search',
+                data: {
+                    type: cateId,
+                    state: state,
+                    page: page,
+                    perpage: 6
+                },
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        var resHtml = template('tmp_list', backData);
+                        $('tbody').html(resHtml);
+                        // 获取页码
+                        var yema = backData.totalPage;
+                        if (myTotalPage != yema) {
+                            // 动态页码
+                            myTotalPage = yema;
+                            var totalPages = backData.totalPage;
+                            var currentPage = $pagination.twbsPagination('getCurrentPage');
+                            $pagination.twbsPagination('destroy');
+                            $pagination.twbsPagination($.extend({}, defaultOpts, {
+                                startPage: 1,
+                                totalPages: totalPages
+                            }));
+                        }
+
+                    }
+                }
+            });
+        }
+
+
+
+        //点击筛选按钮搜索文章
+
+        $('#btnSearch').on('click', function (e) {
+            e.preventDefault();
+            //发送ajax请求
+            cate();
+        });
+        //   页码
+        var myTotalPage = 10;
+        var $pagination = $('.pagination');
+        var defaultOpts = {
+            totalPages: myTotalPage,
+            visiblePages: 5,
+            first: '首页',
+            prev: "上一页",
+            next: "下一页",
+            last: "尾页",
+            onPageClick: function (event, page) {
+                cate(page);
+            }
+        };
+        $pagination.twbsPagination(defaultOpts);
+        cate(1);
+    </script>
 
 </body>
 
