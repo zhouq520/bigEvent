@@ -303,13 +303,10 @@
                 }
             }
         });
-
         // Ajax文章搜索
+        var catNum = 0;
         function cateName(num) {
-
             // 获取总页码数
-
-            var catNum = 0;
             var stateName = $('#selCategory').val();
             var cateName = $('#selStatus').val();
             console.log(stateName);
@@ -324,18 +321,17 @@
                 },
                 success: function (blackData) {
                     console.log(blackData);
-                    catNum = blackData.totalPage;
                     console.log(catNum);
                     var resHtml = template('tmp_list', blackData);
                     $('tbody').html(resHtml);
-                    if (catNum == blackData.totalPage) {
+                    if (catNum != blackData.totalPage) {
+                        catNum = blackData.totalPage;
                         yema(catNum)
                     }
                 }
             })
         }
         // 筛选事件按钮
-
         $('#btnSearch').on('click', function (e) {
             e.preventDefault();
             cateName();
@@ -350,34 +346,9 @@
                 totalNum: catNum, // 总页码
                 totalList: 300, // 记录总数量
                 callback: function (num) { //回调函数
-                    console.log(num);
-                    console.log(catNum);
-                    yemaXz(num);
-
+                    cateName(num)
                 }
             });
-        }
-        function yemaXz(num) {
-            var stateName = $('#selCategory').val();
-            var cateName = $('#selStatus').val();
-            console.log(stateName);
-            console.log(cateName);
-            $.ajax({
-                url: 'http://localhost:8000/admin/search',
-                data: {
-                    type: stateName,
-                    state: cateName,
-                    page: num,
-                    perpage: 6
-                },
-                success: function (blackData) {
-                    console.log(blackData);
-                    catNum = blackData.totalPage;
-                    console.log(catNum);
-                    var resHtml = template('tmp_list', blackData);
-                    $('tbody').html(resHtml);
-                }
-            })
         }
     </script>
 
