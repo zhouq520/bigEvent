@@ -15,6 +15,12 @@
     <script src="js/jedate/js/jedate.js"></script>
     <script src="js/tinymce/js/tinymce/tinymce.min.js"></script>
     <script src="js/tinymce/js/tinymce_setup.js"></script>
+    <script src="./js/template-web.js"></script>
+    <link type="text/css" rel="stylesheet" href="test/jeDate-test.css">
+    <link type="text/css" rel="stylesheet" href="skin/jedate.css">
+    <script type="text/javascript" src="src/jedate.js"></script>
+    <script src="./js/moment.js"></script>
+
 </head>
 
 <body>
@@ -27,19 +33,20 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail3" placeholder="文章标题">
+                        <input type="text" class="form-control" name="title" id="inputEmail3" placeholder="文章标题">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputPassword3" class="col-sm-2 control-label">文章封面：</label>
                     <div class="col-sm-10">
-                        <input type="file" id="exampleInputFile">
+                        <img src="" alt="" class="photo" style="height:150px">
+                        <input type="file" name="cover" id="exampleInputFile">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control">
+                        <select class="form-control" name="id">
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
@@ -48,17 +55,14 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">发布时间：</label>
                     <div class="col-sm-4">
-
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="dateinput">
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" type="button"
-                                    onclick="jeDate('#dateinput',{trigger:false,format: 'YYYY-MM-DD'})"><i
-                                        class="iconfont icon-icondate"></i></button>
-                            </span>
+                        <div class="jeinpbox">
+                            <input type="text" class="jeinput" name="date" id="testico" disabled="false" placeholder="YYYY-MM-DD">
+                            <div class="icons jebtns" onclick="jeDate('#testico',{trigger:false,format: 'YYYY-MM-DD'})">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -72,13 +76,87 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-success">发布</button>
+                        <button type="submit" class="btn btn-success subtimUp">发布</button>
                         <button type="submit" class="btn btn-default">存为草稿</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+    <script id="tem_mob" type="texe/html">
+        {{each data v}}
+        <option {{v.id}}>{{v.name}}</option>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            $('#exampleInputFile').on('change', function () {
+                var icon = this.files[0];
+                console.log(icon);
+                var url = URL.createObjectURL(icon);
+                $(this).prev().attr('src', url)
+            })
+            $.ajax({
+                url: 'http://localhost:8000/admin/category_search',
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        var resHtml = template('tem_mob', backData);
+                        $('.form-control').html(resHtml);
+                    }
+                }
+            });
+
+        })
+        var aa = moment().format('YYYY-MM-DD');
+        $('#testico').val(aa);
+        // 图片预览
+        $('#exampleInputFile').on('change',function (){
+            var ico = this.files[0]
+            var url = URL.createObjectURL(ico)
+            $('photo').attr('src',url)
+        })
+
+        //发布按钮
+        $('.subtimUp').on('click', function (e) {
+            e.preventDefault()
+            var str = tinyMCE.activeEditor.getContent();
+            var formDate1 = new FormData($('form')[0])
+            formDate1.append('content',str)
+            console.log(formDate1);
+            $.ajax({
+                type:'post',
+                url:'http://localhost:8000/admin/article_publish',
+                data:formDate1,
+                contentType:false,
+                processData:false,
+                success:function(blackData){
+                    console.log(blackData);
+                    if(blackData.code == 201){
+                        alert('发布成功')
+                    }
+                    
+                }
+            })
+        });
+
+
+
+
+        /*
+        1、如果当前页面只有一个编辑器：
+      获取内容：tinyMCE.activeEditor.getContent()
+      设置内容：tinyMCE.activeEditor.setContent(“需要设置的编辑器内容”)
+      2、如果当前页面有多个编辑器（下面的“[0]”表示第一个编辑器，以此类推）：
+      获取内容：tinyMCE.editors[0].getContent()
+      设置内容：tinyMCE.editors[0].setContent(“需要设置的编辑器内容”)
+      3、获取不带HTML标记的纯文本内容：
+      var activeEditor = tinymce.activeEditor;
+      var editBody = activeEditor.getBody();
+      activeEditor.selection.select(editBody);
+      var text = activeEditor.selection.getContent( { ‘format’ : ‘text’ } );
+      */
+    </script>
 
 </body>
 
