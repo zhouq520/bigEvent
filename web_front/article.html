@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script src="./js/jquery-1.12.4.min.js"></script>
 </head>
 
 <body>
@@ -204,7 +205,32 @@
         <p>CopyRight © 2019 深圳大事件信息技术股份有限公司 All Rights Reserved</p>
         <p>电话：0755-****888 粤ICP备*******8号</p>
     </div>
+    <script src="./js/template-web.js"></script>
+    <script id="tep-fuTitle" type="text/html">
+        {{author}} 发布于 {{date}}&nbsp;&nbsp;&nbsp;分类: {{type}}&nbsp;&nbsp;&nbsp;阅读:
+                ( {{read}})&nbsp;&nbsp;&nbsp;评论: ({{comment}})
+    </script>
+    <script>
+        var id = window.location.search.split('=')[1];
+        console.log(id);
 
+        $.ajax({
+            url: 'http://localhost:8000/admin/search',
+            data: {
+                id: id
+            },
+            success: function (blackData) {
+                console.log(blackData);
+                if (blackData.code == 200) {
+                    var rehtml = template('tep-fuTitle',blackData.data)
+                    $('.article_info').html(rehtml)
+                    $('.article_title').html(blackData.data.title)
+                    $('.article_con').html(blackData.data.content)
+                }
+
+            }
+        })
+    </script>
 </body>
 
 </html>
