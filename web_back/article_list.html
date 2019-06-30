@@ -305,6 +305,8 @@
         });
         // Ajax文章搜索
         var catNum = 0;
+        //当前页面
+        var pageCate = 0;
         function cateName(num) {
             // 获取总页码数
             var stateName = $('#selCategory').val();
@@ -346,6 +348,7 @@
                 totalNum: catNum, // 总页码
                 totalList: 300, // 记录总数量
                 callback: function (num) { //回调函数
+                    pageCate = num;
                     cateName(num)
                 }
             });
@@ -362,8 +365,10 @@
                 },
                 success: function (blackdata) {
                     if (blackdata.code == 200) {
-                        that.parent().parent().remove();
-                        cateName();
+                        if (confirm('确定要删除吗')) {
+                            that.parent().parent().remove();
+                            cateName(pageCate);
+                        }
                     }
                 }
             })
